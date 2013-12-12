@@ -27,7 +27,7 @@ class Benchmark {
   void set_metric(Metric* metric);
 
   // Benchmarking one face analyzing SDK using the given metric.
-  bool run_benchmark(const string& output_results);
+  bool run_benchmark(string& output_results);
 
   // Return the private landmarks variable.
   vector<PointSet>* get_landmarks();
@@ -49,12 +49,12 @@ class Benchmark {
   Metric* metric_;
 
   // The file paths to all images. List by order.
-  vector<string>* image_paths_;
+  vector<string> image_paths_;
 
   // Standard information of the images. List by order.
-  vector<PointSet>* landmarks_;
-  vector<PointSet>* detection_;
-  vector<KeyValueMapper>* attributes_;
+  vector<PointSet> landmarks_;
+  vector<PointSet> detection_;
+  vector<KeyValueMapper> attributes_;
 };
 
 #endif  // BENCHNARK_H
