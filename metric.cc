@@ -15,6 +15,8 @@ namespace {
 
 #define sqr(x) ((x)*(x))
 
+const string kIndent = "  ";
+
 template <typename T>
 void free_memory(T& t) {
   T tmp;
@@ -77,14 +79,9 @@ Metric::Metric() {
 }
 
 Metric::~Metric() {
-  free_memory(*landmarks_);
-  delete landmarks_;
-
-  free_memory(*detection_);
-  delete detection_;
-
-  free_memory(*attributes_);
-  delete attributes_;
+  free_memory(landmarks_);
+  free_memory(detection_);
+  free_memory(attributes_);
 }
 
 void Metric::get_sdk_results(const vector<string>& image_path) {
@@ -104,35 +101,37 @@ bool Metric::metric(const vector<PointSet>& std_landmarks,
   string attributes_results;
   metric_attributes(std_attributes, attributes_results);
   metric_results =
-      "lanmark_results:\n" + landmark_results +
-      "detection_results:\n" + detection_results +
-      "attributes_results:\n" + attributes_results;
+      "Lanmark_results:\n" + landmark_results +
+      "Detection_results:\n" + detection_results +
+      "Attributes_results:\n" + attributes_results;
 }
 
 bool Metric::metric_landmarks(const vector<PointSet>& std_landmarks,
                               string& metric_results) {
-  assert(std_landmarks.size() == landmarks_->size()
-      && "std_landmarks.size() != landmarks_->size()");
+  assert(std_landmarks.size() == landmarks_.size()
+      && "std_landmarks.size() != landmarks_.size()");
   metric_results = "";
-  float error = 0;
+  float average_error = 0;
   for (int i = 0; i < std_landmarks.size(); ++i) {
-    error += compare_landmarks_value(std_landmarks[i], (*landmarks_)[i]);
+    float error = compare_landmarks_value(std_landmarks[i], landmarks_[i]);
+    //metric_results += kIndent + kIndent + SimpleFtoa(error) + "\n";
+    average_error += error;
   }
-  error /= std_landmarks.size();
-  metric_results += "Average landmark error: " + SimpleFtoa(error) + "\n";
+  average_error /= std_landmarks.size();
+  metric_results += kIndent + "Average landmark error: " + SimpleFtoa(average_error) + "\n";
 }
 
 bool Metric::metric_detection(const vector<PointSet>& std_detection,
                               string& metric_results) {
-  assert(std_detection.size() == detection_->size()
-      && "std_detection.size() != detection_->size()");
+  assert(std_detection.size() == detection_.size()
+      && "std_detection.size() != detection_.size()");
   metric_results = "";
   float average_ratio = 0;
   for (int i = 0; i < std_detection.size(); ++i) {
     float x1min, y1min, x1max, y1max;
     float x2min, y2min, x2max, y2max;
     Rectangle(std_detection[i], &x1min, &y1min, &x1max, &y1max);
-    Rectangle((*detection_)[i], &x2min, &y2min, &x2max, &y2max);
+    Rectangle(detection_[i], &x2min, &y2min, &x2max, &y2max);
     float x_min = max(x1min, x2min), y_min = max(y1min, y2min);
     float x_max = min(x1max, x2max), y_max = min(y1max, y2max);
 
@@ -143,31 +142,31 @@ bool Metric::metric_detection(const vector<PointSet>& std_detection,
     float combine_area = (x1max - x1min) * (y1max - y1min) +
         (x2max - x2min) * (y2max - y2min) - intersection_area;
     float ratio = intersection_area / combine_area;
-    //metric_results += SimpleFtoa(ratio) + "\n";
+    //metric_results += kIndent + kIndent + SimpleFtoa(ratio) + "\n";
     average_ratio += ratio;
   }
   average_ratio /= std_detection.size();
-  metric_results += "Average ratio: " + SimpleFtoa(average_ratio) + "\n";
+  metric_results += kIndent + "Average ratio: " + SimpleFtoa(average_ratio) + "\n";
 }
 
 bool Metric::metric_attributes(const vector<KeyValueMapper>& std_attributes,
                                string& metric_results) {
-  assert(std_attributes.size() == attributes_->size()
-      && "std_attributes.size() != attributes_->size()");
+  assert(std_attributes.size() == attributes_.size()
+      && "std_attributes.size() != attributes_.size()");
   metric_results = "";
   float gender_ratio = 0, age_ratio = 0, race_ratio = 0, glass_ratio = 0;
   for (int i = 0; i < std_attributes.size(); ++i) {
     gender_ratio += compare_attribute_value(std_attributes[i],
-                                            (*attributes_)[i],
+                                            attributes_[i],
                                             kGenderLabel);
     age_ratio += compare_attribute_value(std_attributes[i],
-                                         (*attributes_)[i],
+                                         attributes_[i],
                                          kAgeLabel);
     race_ratio += compare_attribute_value(std_attributes[i],
-                                          (*attributes_)[i],
+                                          attributes_[i],
                                           kRaceLabel);
     glass_ratio += compare_attribute_value(std_attributes[i],
-                                           (*attributes_)[i],
+                                           attributes_[i],
                                            kGlassLabel);
   }
   gender_ratio /= std_attributes.size();
@@ -175,8 +174,8 @@ bool Metric::metric_attributes(const vector<KeyValueMapper>& std_attributes,
   race_ratio /= std_attributes.size();
   glass_ratio /= std_attributes.size();
   metric_results +=
-      "Gender false predict: " + SimpleFtoa(gender_ratio) + "\n" +
-      "Age false predict: " + SimpleFtoa(age_ratio) + "\n" +
-      "Race false predict: " + SimpleFtoa(race_ratio) + "\n" +
-      "Glass false predict: " + SimpleFtoa(glass_ratio) + "\n";
+      kIndent + "Gender false predict: " + SimpleFtoa(gender_ratio) + "\n" +
+      kIndent + "Age false predict: " + SimpleFtoa(age_ratio) + "\n" +
+      kIndent + "Race false predict: " + SimpleFtoa(race_ratio) + "\n" +
+      kIndent + "Glass false predict: " + SimpleFtoa(glass_ratio) + "\n";
 }

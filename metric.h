@@ -39,11 +39,11 @@ class Metric {
   bool metric_attributes(const vector<KeyValueMapper>& std_attributes,
                          string& metric_results);
 
- private:
+ protected:
   // These variables contains the results of the SDK.
-  vector<PointSet>* landmarks_;
-  vector<PointSet>* detection_;
-  vector<KeyValueMapper>* attributes_;
+  vector<PointSet> landmarks_;
+  vector<PointSet> detection_;
+  vector<KeyValueMapper> attributes_;
 };
 
-#endif
+#endif  // METRIC_H

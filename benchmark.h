@@ -21,6 +21,7 @@ class Benchmark {
   // Load data from database according to input configuration file.
   void init(const string& input_config);
   // Release data from database.
+  // Notice we don't delete metric_ here, because Benchmark doesn't own it.
   void release();
 
   // Set the private metric class.

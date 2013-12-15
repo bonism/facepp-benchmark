@@ -56,7 +56,6 @@ void get_key_value_mapper(json_value* value, KeyValueMapper& mapper) {
 
 Benchmark::Benchmark(const string& input_json) {
   init(input_json);
-  printf("Finished Benchmark().\n");
 }
 
 Benchmark::~Benchmark() {
@@ -65,7 +64,6 @@ Benchmark::~Benchmark() {
 
 void Benchmark::init(const string& input_config) {
   // Read JSON
-  printf("Reading JSON...\n");
   ifstream json_file(input_config.c_str());
   assert(json_file.is_open());
   string content, line;
@@ -74,12 +72,10 @@ void Benchmark::init(const string& input_config) {
   }
   json_file.close();
   // Parse JSON
-  printf("Parsing JSON...\n");
   json_value* data = json_parse(content.c_str(), content.size());
   assert(data != NULL && "Error: nullptr!\n");
   assert(data->type == json_array
       && "Error: The input data should be a json_array!\n");
-  printf("Importing data...\n");
   for (int i = 0; i < data->u.array.length; ++i) {
     assert(data->u.array.values[i]->type == json_object
         && "Error: Each input data should be a json_object!\n");
@@ -107,11 +103,9 @@ void Benchmark::init(const string& input_config) {
       }
     }
   }
-  printf("Finished init().\n");
 }
 
 void Benchmark::release() {
-  delete metric_;
   free_memory(image_paths_);
   free_memory(landmarks_);
   free_memory(detection_);
